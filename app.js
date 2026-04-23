@@ -18,6 +18,7 @@ class Paper {
 
     init(paper) {
 
+        // --- Mouse Events (Desktop) ---
         paper.addEventListener('mousedown', (e) => {
 
             this.holdingPaper = true;
@@ -57,6 +58,46 @@ class Paper {
         })
         window.addEventListener("mouseup", (e) => {
             // console.log("mouse button is released");
+            this.holdingPaper = false;
+        })
+
+        // --- Touch Events (Mobile) ---
+        paper.addEventListener('touchstart', (e) => {
+            this.holdingPaper = true;
+
+            paper.style.zIndex = highestZ;
+            highestZ += 1;
+
+            const touch = e.touches[0];
+            this.mouseX = touch.clientX;
+            this.mouseY = touch.clientY;
+
+            this.prevMouseX = this.mouseX;
+            this.prevMouseY = this.mouseY;
+        }, { passive: false })
+
+        document.addEventListener('touchmove', (e) => {
+            if (!this.holdingPaper) return;
+
+            e.preventDefault(); // prevent scrolling while dragging
+
+            const touch = e.touches[0];
+            this.mouseX = touch.clientX;
+            this.mouseY = touch.clientY;
+
+            this.velocityX = this.mouseX - this.prevMouseX;
+            this.velocityY = this.mouseY - this.prevMouseY;
+
+            this.currentPaperX += this.velocityX;
+            this.currentPaperY += this.velocityY;
+
+            this.prevMouseX = this.mouseX;
+            this.prevMouseY = this.mouseY;
+
+            paper.style.transform = `translateX(${this.currentPaperX}px) translateY(${this.currentPaperY}px)`;
+        }, { passive: false })
+
+        window.addEventListener('touchend', (e) => {
             this.holdingPaper = false;
         })
     }
